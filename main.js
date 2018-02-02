@@ -5,7 +5,6 @@ var moment = require('moment');
 var date = null;
 
 for (let j = 0; j < process.argv.length; j++) {  
-    // console.log(j + ' -> ' + (process.argv[j]));
     if (j == 2) {
         date = moment(process.argv[j], 'MM-DD-YYYY');
     }
@@ -30,7 +29,6 @@ var options = {
     json: true
 }
 
-
 // Start the request
 if (date) {
     if (!date.isValid()) {
@@ -45,6 +43,12 @@ if (date) {
             if (!error && response.statusCode == 200) {
                 var index = body.search("doui_setResponseParameters") + 32;
                 var fileHash = body.slice( index, index + 32 );
+                var error = body.search("doui_error") + 16;
+                var errorCode = body.slice( error, error + 25 );
+                if (errorCode == "No+entity+found+for+query") {
+                    console.log("Invalid date range. Please check website for valid date ranges.");
+                    return;
+                }
                 var output = "data_" + date.format('YYYYMMDD') + ".zip";
                 var fileUrl = 'http://www.bmfbovespa.com.br/lumis/portal/file/fileDownload.jsp?fileId=' + fileHash;
 
