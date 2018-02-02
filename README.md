@@ -3,6 +3,6 @@
 Make sure you have Node installed on your computer.
 
 1. npm install
-2. node main.js <date>
+2. node main.js [date]
 
-<date> is of format MM-DD-YYYY or MM/DD/YYYY.
+[date] is of format MM-DD-YYYY or MM/DD/YYYY and is required.
