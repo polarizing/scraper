@@ -1,6 +1,6 @@
 # scraper
 
-Make sure you have Node installed on your computer. Clone this repository and cd to repository root. Then,
+Make sure you have Node installed on your computer. Clone this repository and cd to repository folder. Then,
 
 1. npm install
 2. node main.js [date]
