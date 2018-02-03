@@ -12,7 +12,7 @@ for (let j = 0; j < process.argv.length; j++) {
 
 // Set the headers
 var headers = {
-    'accept': '*/*',
+    'accept': 'application/json',
     'user-agent':'*',
     'Content-Type': 'application/x-www-form-urlencoded',
 }
@@ -26,7 +26,6 @@ var options = {
         'dataDownload':date.format('DD/MM/YYYY'),
         'tipo':'R',
     },
-    json: true
 }
 
 // Start the request
@@ -41,27 +40,23 @@ if (date) {
         console.log("Fetching data ...");
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                var index = body.search("doui_setResponseParameters") + 32;
-                var fileHash = body.slice( index, index + 32 );
-                var error = body.search("doui_error") + 16;
-                var errorCode = body.slice( error, error + 25 );
-                if (errorCode == "No+entity+found+for+query") {
-                    console.log("Invalid date range. Please check website for valid date ranges.");
-                    return;
+                var data = JSON.parse(response.body);
+                var responseParams = data["responseParameters"];
+                if (responseParams['doui_setResponseParameters']) {
+                    var fileHash = responseParams['doui_setResponseParameters'];
+                    var output = "data_" + date.format('YYYYMMDD') + ".zip";
+                    var fileUrl = 'http://www.bmfbovespa.com.br/lumis/portal/file/fileDownload.jsp?fileId=' + fileHash;
+
+                    request({url: fileUrl, encoding: null}, function(err, resp, body) {
+                      if(err) throw err;
+                      fs.writeFile(output, body, function(err) {
+                        console.log("File written as: " + output + " to " + __dirname);
+                      });
+                    });
                 }
-                var output = "data_" + date.format('YYYYMMDD') + ".zip";
-                var fileUrl = 'http://www.bmfbovespa.com.br/lumis/portal/file/fileDownload.jsp?fileId=' + fileHash;
-
-                request({url: fileUrl, encoding: null}, function(err, resp, body) {
-                  if(err) throw err;
-                  fs.writeFile(output, body, function(err) {
-                    console.log("File written as: " + output + " to " + __dirname);
-                  });
-                });
-
             }
             else {
-                console.log("There was an error scraping the data.")
+                console.log("There was an error scraping the data. Please check website for valid date ranges.")
             }
         })
     }
